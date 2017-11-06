@@ -5,6 +5,7 @@ add_library(
   SHARED 
   error_functions.c
   get_num.c
+  inet_sockets.c
 )
 
 set_target_properties(utils PROPERTIES output_name "utils")
