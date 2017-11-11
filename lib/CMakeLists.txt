@@ -6,6 +6,8 @@ add_library(
   error_functions.c
   get_num.c
   inet_sockets.c
+  rdwrn.c
+  read_line.c
 )
 
 set_target_properties(utils PROPERTIES output_name "utils")

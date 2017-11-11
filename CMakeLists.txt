@@ -13,6 +13,10 @@ add_subdirectory(lib)
 add_executable(
   miniftp
   src/main.c
+  src/session.c
+  src/privparent.c
+  src/ftpproto.c
+  src/str.c
 )
 
 target_link_libraries(
