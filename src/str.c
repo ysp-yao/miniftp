@@ -22,12 +22,16 @@ void str_split(const char *str, char *left, char *right, char c) {
 }
 
 int str_all_space(const char *str) {
+  
+
   while (*str) {
-    if (!isspace(str)) {
+
+    if (!isspace(*str)) {
       return 0;
     }
     str++;
   }
+
   return 1;
 }
 

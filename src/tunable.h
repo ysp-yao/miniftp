@@ -1,8 +1,8 @@
 #ifndef TUNABLE_H_
 #define TUNABLE_H_
 
-extern int tunable_pasv_enbale;
-extern int tunable_port_enbale;
+extern int tunable_pasv_enable;
+extern int tunable_port_enable;
 extern unsigned int tunable_listen_port;
 extern unsigned int tunable_max_clients;
 extern unsigned int tunable_max_peer_ip;

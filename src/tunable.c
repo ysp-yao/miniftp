@@ -1,8 +1,8 @@
 #include "tunable.h"
 
 
-int tunable_pasv_enbale = 1;
-int tunable_port_enbale = 1;
+int tunable_pasv_enable = 1;
+int tunable_port_enable = 1;
 unsigned int tunable_listen_port = 21;
 unsigned int tunable_max_clients = 2000;
 unsigned int tunable_max_peer_ip = 50;
