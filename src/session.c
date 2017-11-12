@@ -8,20 +8,6 @@
 
 
 void begin_session(session_t *sess) {
-  struct passwd *pw = getpwnam("nobody");
-  if (pw == NULL) {
-    return;  
-  }
-  
-  if (setgid(pw->pw_gid)<0) {
-    errExit("setgid");
-  }	  
-
-  if (setuid(pw->pw_uid)<0) {
-    errExit("setuid");
-  }	  
-
-  
   int sockfds[2];
   if (socketpair(PF_UNIX, SOCK_STREAM, 0, sockfds)) {
     errExit("socketpair");
@@ -37,12 +23,24 @@ void begin_session(session_t *sess) {
     handle_child(sess);
     break;
 
-  default: // parent, nobody process
+  default: { // parent, nobody process
+    struct passwd *pw = getpwnam("nobody");
+    if (pw == NULL) {
+      return;  
+    }
+  
+    if (setgid(pw->pw_gid)<0) {
+      errExit("setgid");
+    }  
+
+    if (setuid(pw->pw_uid)<0) {
+      errExit("setuid");
+    }  
     close(sockfds[1]);
     sess->parent_fd = sockfds[0];
     handle_parent(sess);
     break;
-
+  }
   }
 
 }

@@ -5,7 +5,11 @@
 #define MAX_COMMAND 32
 #define MAX_ARG 1024
 
+#include <sys/types.h>
+
 typedef struct session {
+  
+  uid_t uid;
   int ctrl_fd;
   char cmdline[MAX_COMMAND_LINE];
   char cmd[MAX_COMMAND];
@@ -14,6 +18,8 @@ typedef struct session {
 
   int parent_fd;
   int child_fd;
+  
+  int is_ascii;
 
 } session_t;
 
