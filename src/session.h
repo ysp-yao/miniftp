@@ -15,7 +15,12 @@ typedef struct session {
   char cmd[MAX_COMMAND];
   char arg[MAX_ARG];
   
-
+  char ip[100];
+  int port;
+  //struct sockaddr_in *port_addr;
+  int data_fd;
+  int pasv_listen_d;
+  
   int parent_fd;
   int child_fd;
   

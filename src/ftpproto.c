@@ -13,7 +13,8 @@
 #include <dirent.h>
 #include <sys/time.h>
 #include <unistd.h>
-
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 
 #include <string.h>
@@ -25,7 +26,7 @@
 void ftp_reply(session_t *sess, int status, const char *text);
 void ftp_lreply(session_t *sess, int status, const char *text);
 
-
+int get_transfer_fd(session_t *sess);
 
 static void do_user(session_t *sess);
 static void do_pass(session_t *sess);
@@ -223,8 +224,63 @@ static void do_cdup(session_t *sess) {
 static void do_quit(session_t *sess) {
 }
 static void do_port(session_t *sess) {
+
+
+  char *p = sess->arg;
+  int i=0;
+  for (;*p!='\0';++p) {
+    if (*p == ',') {
+
+      if (i == 3) {
+        *p = '\0';
+        ++p;
+        break;
+      }
+      else {
+        *p = '.';
+        ++i;
+      }
+    }
+  }
+  
+  strcpy(sess->ip, sess->arg);
+
+  char *p2 = p;
+  for (;*p!=',';++p);
+  *p = '\0';
+  int aaa = atoi(p2);
+  int bbb = atoi(++p);
+  sess->port = aaa*256+bbb;
+  
+  
+
+  printf("ip=%s,port=%d\n", sess->ip, sess->port);  
+
+  
+  /*
+  unsigned int v[6];
+  sscanf(sess->arg, "%u,%u,%u,%u,%u", &v[2], &v[3], &v[4], &v[5], &v[0], &v[1]);
+  sess->port_addr = (struct sockaddr_in*)malloc(sizeof(struct sockaddr_in));
+  memset(sess->port_addr, 0, sizeof(struct sockaddr_in));
+  sess->port_addr->sin_family = AF_INET;
+  unsigned char *p = (unsigned char *)&sess->port_addr->sin_port;
+  p[0] = v[0];
+  p[1] = v[1];
+  
+  p = (unsigned char *)&sess->port_addr->sin_addr;
+  p[0] = v[2];
+  p[1] = v[3];
+  p[2] = v[4];
+  p[3] = v[5];  
+*/
+  ftp_reply(sess, FTP_PORTOK, "PORT command successful. Consider using PASV");
+
 }
 static void do_pasv(session_t *sess) {
+  if ((sess->pasv_listen_d=inetBind(66666, SOMAXCONN, NULL)) == -1) {
+    errExit("inetBind");
+  }
+  //int lfd = inetListen(port, SOMAXCONN, NULL);
 }
 static void do_type(session_t *sess) {
   if (strcmp(sess->arg, "A") == 0) {
@@ -250,6 +306,19 @@ static void do_stor(session_t *sess) {
 static void do_appe(session_t *sess) {
 }
 static void do_list(session_t *sess) {
+  //printf("=================\n");
+  if (get_transfer_fd(sess) == 0) {
+    return;
+  }
+  // 150
+  ftp_reply(sess, FTP_DATACONN, "Here comes the directory listing.");
+  
+  list_common(sess);
+  
+  close(sess->data_fd);
+  sess->data_fd = -1;
+  
+  ftp_reply(sess, FTP_TRANSFEROK, "Directory send OK.");
 }
 static void do_nlst(session_t *sess) {
 }
@@ -300,7 +369,7 @@ static void do_noop(session_t *sess) {
 static void do_help(session_t *sess) {
 }
 
-int list_common(void) {
+int list_common(session_t *sess) {
   DIR *dir = opendir(".");
   if (dir == NULL) {
     return 0;
@@ -414,11 +483,75 @@ int list_common(void) {
        off += sprintf(buf+off, "%s\r\n", dt->d_name);
     }
     
-    printf("%s", buf);
+    //printf("%s", buf);
+    writen(sess->data_fd, buf, strlen(buf));
     
   }
   
   closedir(dir);
+  
+  return 1;
+}
+
+int port_active(session_t *sess) {
+  if (sess->port != -1) {
+    if (pasv_active(sess)) {
+      fprintf(stderr, "both port and pasv are active");
+      exit(EXIT_FAILURE);
+    }
+    return 1;
+  }
+  return 0;
+}
+
+int pasv_active(session_t *sess) {
+  if (sess->pasv_listen_d != -1) {
+    if (port_active(sess)) {
+      fprintf(stderr, "both port and pasv are active");
+      exit(EXIT_FAILURE);
+    }
+    return 1;
+  }
+  return 0;
+}
+
+int get_transfer_fd(session_t *sess) {
+  if (!port_active(sess) && !pasv_active(sess)) {
+    ftp_reply(sess, 425, "Use PORT or PASV first.");
+    return 0;
+  }
+  //printf("=================%d\n", sess->data_fd );
+  //sess->data_fd = inetConnect(sess->ip, sess->port, SOCK_STREAM);
+  //printf("=================%d\n", sess->data_fd );
+  if (port_active(sess)) {
+    int clt_sock = socket(AF_INET, SOCK_STREAM, 0);   
+    if(clt_sock < 0) {
+      errExit("socket");
+    }  
+      
+    struct sockaddr_in addr;   
+    addr.sin_family = PF_INET;   
+    addr.sin_port = htons(sess->port);   
+    addr.sin_addr.s_addr = inet_addr(sess->ip);  
+    
+    // reset
+    sess->port = -1;
+    memset(sess->ip, 0, sizeof(sess->ip));
+    
+    
+    socklen_t addr_len = sizeof(addr);  
+    int connect_fd = connect(clt_sock, (struct sockaddr*)&addr, addr_len);  
+    if(connect_fd < 0) {
+      close(clt_sock);
+      errExit("connect");
+    }
+    
+    sess->data_fd = clt_sock;
+  }
+  
+  if (pasv_active(sess)) {
+
+  }
   
   return 1;
 }

@@ -11,7 +11,7 @@
 
 int main(int argc, char *argv[]) {
 
-  list_common();
+  //list_common();
 
   parseconf_load_file("../src/miniftpd.conf");
 
@@ -43,6 +43,8 @@ int main(int argc, char *argv[]) {
 
   session_t sess = {
     0, -1, "", "", "",
+    "",-1,-1,-1,
+//NULL,-1,
     -1,-1,
     0
   };
