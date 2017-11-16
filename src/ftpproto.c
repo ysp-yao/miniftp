@@ -277,10 +277,31 @@ static void do_port(session_t *sess) {
 
 }
 static void do_pasv(session_t *sess) {
-  if ((sess->pasv_listen_d=inetBind(66666, SOMAXCONN, NULL)) == -1) {
+//  if ((sess->pasv_listen_d=inetBind("66666666", SOCK_STREAM, NULL)) == -1) {
+  char portt[10] = "2188";
+  if ((sess->pasv_listen_d = inetListen(portt, SOMAXCONN, NULL)) == -1) {
     errExit("inetBind");
   }
-  //int lfd = inetListen(port, SOMAXCONN, NULL);
+
+  struct sockaddr_in addr;
+  socklen_t addlen = sizeof(addr);
+  memset(&addr, 0, addlen);
+  if(getsockname(sess->pasv_listen_d, (struct sockaddr *)&addr, &addlen)<0) {
+    errExit("getsockname");
+  }
+    if(getsockname(sess->pasv_listen_d, (struct sockaddr *)&addr, &addlen)<0) {
+    errExit("getsockname");
+  }
+  
+  unsigned short port = ntohs(addr.sin_port);
+  unsigned int v[4];
+  char localip[50] = "192.168.137.144";
+  sscanf(localip, "%u.%u.%u.%u", &v[0], &v[1], &v[2], &v[3]);
+  char text[1024] = {0};
+  sprintf(text, "Entering Passive Mode (%u,%u,%u,%u,%u,%u).",
+    v[0], v[1], v[2], v[3], port>>8, port&0xFF);
+    
+  ftp_reply(sess, FTP_PASVOK, text);
 }
 static void do_type(session_t *sess) {
   if (strcmp(sess->arg, "A") == 0) {
@@ -550,8 +571,19 @@ int get_transfer_fd(session_t *sess) {
   }
   
   if (pasv_active(sess)) {
-
+    int cfd = accept(sess->pasv_listen_d, NULL, NULL);
+    close(sess->pasv_listen_d);
+    
+    if (cfd ==-1) {
+      return 0;
+    }
+    
+    sess->data_fd = cfd;
   }
+  
+  sess->port = -1;
+  memset(sess->ip, 0, 100);
+  
   
   return 1;
 }

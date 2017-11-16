@@ -53,8 +53,11 @@ int main(int argc, char *argv[]) {
   int lfd, cfd;
 
   char port[10] = "5188";
+  //char sss[10] = "2188";
+  //lfd = inetListen(sss, SOMAXCONN, NULL);
   lfd = inetListen(port, SOMAXCONN, NULL);
 
+  //while(1);
   for(;;) {
     cfd = accept(lfd, NULL, NULL);
     if (cfd == -1) {  

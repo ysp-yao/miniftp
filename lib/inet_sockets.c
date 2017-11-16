@@ -106,7 +106,7 @@ inetPassiveSocket(const char *service, int type, socklen_t *addrlen,
     s = getaddrinfo(NULL, service, &hints, &result);
     if (s != 0)
         return -1;
-
+      printf("1111111111111111111111111\n");
     /* Walk through returned list until we find an address structure
        that can be used to successfully create and bind a socket */
 
