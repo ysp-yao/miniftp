@@ -21,10 +21,17 @@ typedef struct session {
   int data_fd;
   int pasv_listen_d;
   
+  unsigned int bw_upload_rate_max;
+  unsigned int bw_download_rate_max;
+  long bw_transfer_start_sec;
+  long bw_transfer_start_usec;
+  
   int parent_fd;
   int child_fd;
   
   int is_ascii;
+  long long restart_pos;
+  char *rnfr_name;
 
 } session_t;
 

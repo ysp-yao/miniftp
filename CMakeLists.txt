@@ -19,6 +19,7 @@ add_executable(
   src/str.c
   src/tunable.c
   src/parseconf.c
+  src/privsock.c
 )
 
 target_link_libraries(

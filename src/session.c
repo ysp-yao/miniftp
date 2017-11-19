@@ -2,42 +2,33 @@
 
 #include "tlpi_hdr.h"
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <pwd.h>
+
+
 
 
 void begin_session(session_t *sess) {
-  int sockfds[2];
+  /*int sockfds[2];
   if (socketpair(PF_UNIX, SOCK_STREAM, 0, sockfds)) {
     errExit("socketpair");
-  }
+  }*/
+  priv_sock_init(sess);
 
   switch(fork()) {
   case -1:
     errExit("fork");
     break;
   case 0: // child, ftp server process
-    close(sockfds[0]);
-    sess->child_fd = sockfds[1];
+    //close(sockfds[0]);
+    //sess->child_fd = sockfds[1];
+    priv_sock_set_child_context(sess);
     handle_child(sess);
     break;
 
   default: { // parent, nobody process
-    struct passwd *pw = getpwnam("nobody");
-    if (pw == NULL) {
-      return;  
-    }
-  
-    if (setgid(pw->pw_gid)<0) {
-      errExit("setgid");
-    }  
 
-    if (setuid(pw->pw_uid)<0) {
-      errExit("setuid");
-    }  
-    close(sockfds[1]);
-    sess->parent_fd = sockfds[0];
+    priv_sock_set_parent_context(sess);
+    //close(sockfds[1]);
+    //sess->parent_fd = sockfds[0];
     handle_parent(sess);
     break;
   }

@@ -9,6 +9,7 @@ static struct parseconf_bool_setting {
   int *p_variable;
 }
 
+
 parseconf_bool_array[] = {
   { "pasv_enable", &tunable_pasv_enable },
   { "port_enbale", &tunable_port_enable },

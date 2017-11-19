@@ -8,6 +8,7 @@
 #include "tunable.h"
 #include "ftpproto.h"
 
+#include <signal.h>
 
 int main(int argc, char *argv[]) {
 
@@ -45,11 +46,16 @@ int main(int argc, char *argv[]) {
     0, -1, "", "", "",
     "",-1,-1,-1,
 //NULL,-1,
+    0, 0, 0, 0,
     -1,-1,
-    0
+    0, 0, NULL
   };
 
+  sess.bw_upload_rate_max = tunable_upload_max_rate;
+  sess.bw_download_rate_max = tunable_download_max_rate;
+  
 
+  signal(SIGCHLD, SIG_IGN);
   int lfd, cfd;
 
   char port[10] = "5188";
