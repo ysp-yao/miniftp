@@ -55,20 +55,17 @@ inetConnect(const char *host, const char *service, int type)
         errno = ENOSYS;
         return -1;
     }
-      printf("1111111111111111111111111\n");
 
     /* Walk through returned list until we find an address structure
        that can be used to successfully connect a socket */
 
     for (rp = result; rp != NULL; rp = rp->ai_next) {
         sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-              printf("22222222222222222222222222\n");
         if (sfd == -1)
             continue;                   /* On error, try next address */
 
         if (connect(sfd, rp->ai_addr, rp->ai_addrlen) != -1)
             break;                      /* Success */
-      printf("33333333333333333333333333\n");
         /* Connect failed: close this socket and try next address */
 
         close(sfd);
@@ -106,7 +103,6 @@ inetPassiveSocket(const char *service, int type, socklen_t *addrlen,
     s = getaddrinfo(NULL, service, &hints, &result);
     if (s != 0)
         return -1;
-      printf("1111111111111111111111111\n");
     /* Walk through returned list until we find an address structure
        that can be used to successfully create and bind a socket */
 
