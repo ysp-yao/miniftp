@@ -28,7 +28,7 @@ readn(int fd, void *buffer, size_t n)
     size_t totRead;                     /* Total # of bytes read so far */
     char *buf;
 
-    buf = buffer;                       /* No pointer arithmetic on "void *" */
+    buf = static_cast<char*>(buffer);                       /* No pointer arithmetic on "void *" */
     for (totRead = 0; totRead < n; ) {
         numRead = read(fd, buf, n - totRead);
 
@@ -56,7 +56,7 @@ writen(int fd, const void *buffer, size_t n)
     size_t totWritten;                  /* Total # of bytes written so far */
     const char *buf;
 
-    buf = buffer;                       /* No pointer arithmetic on "void *" */
+    buf = static_cast<const char*>(buffer);                       /* No pointer arithmetic on "void *" */
     for (totWritten = 0; totWritten < n; ) {
         numWritten = write(fd, buf, n - totWritten);
 

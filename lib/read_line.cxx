@@ -39,7 +39,7 @@ readLine(int fd, void *buffer, size_t n)
         return -1;
     }
 
-    buf = buffer;                       /* No pointer arithmetic on "void *" */
+    buf = static_cast<char*>(buffer);                       /* No pointer arithmetic on "void *" */
 
     totRead = 0;
     for (;;) {

@@ -31,6 +31,7 @@ cmake_minimum_required(VERSION 3.6)
 
 SET( CMAKE_BUILD_TYPE Debug )
 
+set (CMAKE_CXX_STANDARD 11)
 
 INCLUDE_DIRECTORIES(
   /home/pi/muduo-0.9.1
@@ -41,9 +42,15 @@ INCLUDE_DIRECTORIES(
 
 add_executable(
   myminiftp
+  lib/rdwrn.cxx
+  lib/read_line.cxx
   lib/inet_sockets.cc
   lib/error_functions.cc
-  src_/main.cc
+  src_/main.cxx
+  src_/session.cxx
+  src_/unix_socket.cxx
+  src_/ftp_service.cxx
+  src_/str.cxx
   )
 
 
