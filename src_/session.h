@@ -3,20 +3,19 @@
 
 #include "unix_socket.h"
 #include "ftp_service.h"
+#include "nobody.h"
+
 
 class Session {
   
 public:
   bool init(int cfd);
   void start();
-  
-private:
-  void ftp_service_process();
-  void nobody_process();
 
 private:
   UnixSocket unix_socket_;
   FtpService ftp_service_;
+  Nobody nobody_;
 };
 
 

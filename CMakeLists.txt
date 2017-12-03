@@ -51,7 +51,8 @@ add_executable(
   src_/unix_socket.cxx
   src_/ftp_service.cxx
   src_/str.cxx
-  )
+  src_/nobody.cxx
+)
 
 
 target_link_libraries(

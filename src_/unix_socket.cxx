@@ -18,9 +18,11 @@ bool UnixSocket::init() {
 }
 
 int UnixSocket::parent_fd() {
+  close(sockfd_[1]);
   return sockfd_[0];
 }
 
 int UnixSocket::child_fd() {
+  close(sockfd_[0]);
   return sockfd_[1];
 }

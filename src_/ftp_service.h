@@ -2,7 +2,8 @@
 #define FTP_SERVICE_H_
 
 #include <string>
-
+#include <functional>
+#include <map>
 
 #define FTP_DATACONN 150
 
@@ -78,19 +79,35 @@
 #define FTP_UPLOADFAIL 553
 #define FTP_
 
+class UnixSocket;
 
 class FtpService {
 public:
   FtpService();
   
-  void init(int tcp_sock_fd);
+  void init(UnixSocket *p_unix_socket, int tcp_sock_fd);
   
   void SendToClient(int status, const char *text);
   int ReadFromClient(std::string &msg);
   
-private:
-  int tcp_sock_fd_;
+  void run();
+
+public:
+  static void do_user(FtpService *p, std::string args);
+  static void do_pass(FtpService *p, std::string args);
+  static void do_syst(FtpService *p, std::string args);
+  static void do_feat(FtpService *p, std::string args);
+  static void do_type(FtpService *p, std::string args);
+  static void do_pasv(FtpService *p, std::string args);
   
+private:
+  UnixSocket *p_unix_socket_;
+  int tcp_sock_fd_;
+  int unix_sock_fd_;
+  static std::map<std::string, std::function<void(FtpService *, std::string)>> ftp_function_map_;
+  //std::string password_;
+  uid_t user_id_;
+  int is_ascii_;
 };
 
 #endif // FTP_SERVICE_H_
